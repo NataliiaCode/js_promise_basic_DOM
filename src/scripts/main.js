@@ -1,25 +1,53 @@
 'use strict';
 
-async function filterPromise() {
-  try {
-    await Promise.resolve();
+let promise1;
+let promise2;
 
-    const div = document.createElement('div');
+function createAndHandlePromises() {
+  promise1 = new Promise((resolve) => {
+    const logo = document.querySelector('.logo');
 
-    div.classList.add('message');
-    div.textContent = 'Promise was resolved!';
-    document.body.appendChild(div);
-  } catch (error) {
-    const rejectionError = new Error('Promise was rejected!');
+    if (!logo) {
+      appendErrorMessage(
+        "Error: '.logo' element not found.  Functionality impaired.",
+      );
 
-    Promise.reject(rejectionError);
+      return;
+    }
+    logo.addEventListener('click', resolve);
+  });
 
-    const div = document.createElement('div');
+  promise2 = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      reject(new Error('Promise 2 rejected after 3 seconds'));
+    }, 3000);
+  });
 
-    div.classList.add('message', 'error-message');
-    div.textContent = 'Promise was rejected! ' + rejectionError.message;
-    document.body.appendChild(div);
-  }
+  promise1.then(
+    () => appendMessage('Promise 1 was resolved!'),
+    (error) => appendErrorMessage('Promise 1 was rejected! ' + error.message),
+  );
+
+  promise2.then(
+    () => appendMessage('Promise 2 was resolved!'),
+    (error) => appendErrorMessage('Promise 2 was rejected! ' + error.message),
+  );
 }
 
-document.querySelector('.logo').addEventListener('click', filterPromise);
+function appendMessage(text) {
+  const div = document.createElement('div');
+
+  div.classList.add('message');
+  div.textContent = text;
+  document.body.appendChild(div);
+}
+
+function appendErrorMessage(text) {
+  const div = document.createElement('div');
+
+  div.classList.add('message', 'error-message');
+  div.textContent = text;
+  document.body.appendChild(div);
+}
+
+createAndHandlePromises();
